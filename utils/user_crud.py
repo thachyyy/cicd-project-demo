@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -34,14 +32,14 @@ def create_user(db: Session, user: UserCreate):
 
 
 def list_users(db: Session):
-    return db.query(UserRow).all()
+    return db.query(UserRow).order_by(UserRow.id).all()
 
 
-def get_user(db: Session, user_id: UUID):
+def get_user(db: Session, user_id: int):
     return db.query(UserRow).filter_by(id=user_id).first()
 
 
-def update_user(db: Session, user_id: UUID, changes: UserUpdate):
+def update_user(db: Session, user_id: int, changes: UserUpdate):
     row = get_user(db=db, user_id=user_id)
     if row is None:
         return None
@@ -58,7 +56,7 @@ def update_user(db: Session, user_id: UUID, changes: UserUpdate):
     return row
 
 
-def delete_user(db: Session, user_id: UUID) -> bool:
+def delete_user(db: Session, user_id: int) -> bool:
     row = get_user(db=db, user_id=user_id)
     if row is None:
         return False

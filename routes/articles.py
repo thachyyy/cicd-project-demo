@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -22,19 +21,19 @@ def read_articles(db: Session = Depends(get_db)):
 
 
 @router.get("/{article_id}", response_model=Article)
-def read_article(article_id: UUID, db: Session = Depends(get_db)):
+def read_article(article_id: int, db: Session = Depends(get_db)):
     return article_crud.get_article(db=db, article_id=article_id)
 
 
 @router.patch("/{article_id}", response_model=Article)
 def edit_article(
-    article_id: UUID, changes: ArticleUpdate, db: Session = Depends(get_db)
+    article_id: int, changes: ArticleUpdate, db: Session = Depends(get_db)
 ):
     return article_crud.update_article(db=db, article_id=article_id, changes=changes)
 
 
 @router.delete("/{article_id}", response_model=ArticleDeleted)
-def remove_article(article_id: UUID, db: Session = Depends(get_db)):
+def remove_article(article_id: int, db: Session = Depends(get_db)):
     result = article_crud.delete_article(db=db, article_id=article_id)
     if result.detail == article_crud.ARTICLE_MISSING:
         raise HTTPException(

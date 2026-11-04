@@ -1,5 +1,4 @@
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -14,7 +13,7 @@ class ArticleUpdate(BaseModel):
 
 
 class Article(ArticleUpdate):
-    id: Optional[UUID] = None
+    id: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -40,7 +39,7 @@ class UserUpdate(BaseModel):
 class User(BaseModel):
     """What the API returns. It never includes the password or its hash."""
 
-    id: UUID
+    id: int
     email: EmailStr
     name: str
 

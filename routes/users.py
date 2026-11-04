@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -32,7 +31,7 @@ def read_users(db: Session = Depends(get_db)):
 
 
 @router.get("/{user_id}", response_model=User)
-def read_user(user_id: UUID, db: Session = Depends(get_db)):
+def read_user(user_id: int, db: Session = Depends(get_db)):
     user = user_crud.get_user(db=db, user_id=user_id)
     if user is None:
         raise USER_NOT_FOUND
@@ -40,7 +39,7 @@ def read_user(user_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.patch("/{user_id}", response_model=User)
-def edit_user(user_id: UUID, changes: UserUpdate, db: Session = Depends(get_db)):
+def edit_user(user_id: int, changes: UserUpdate, db: Session = Depends(get_db)):
     try:
         user = user_crud.update_user(db=db, user_id=user_id, changes=changes)
     except user_crud.EmailTaken:
@@ -51,7 +50,7 @@ def edit_user(user_id: UUID, changes: UserUpdate, db: Session = Depends(get_db))
 
 
 @router.delete("/{user_id}", response_model=UserDeleted)
-def remove_user(user_id: UUID, db: Session = Depends(get_db)):
+def remove_user(user_id: int, db: Session = Depends(get_db)):
     if not user_crud.delete_user(db=db, user_id=user_id):
         raise USER_NOT_FOUND
     return UserDeleted(detail="User deleted")

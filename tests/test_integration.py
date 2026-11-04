@@ -5,7 +5,7 @@ against PostgreSQL; locally they use SQLite unless DATABASE_URL is set.
 """
 
 import os
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -21,6 +21,8 @@ from utils.passwords import verify_password
 client = TestClient(app)
 
 USER_PASSWORD = "correct horse battery"
+# The largest PostgreSQL integer, far beyond any id these tests create.
+MISSING_ID = 2**31 - 1
 
 
 @pytest.fixture
@@ -42,6 +44,30 @@ def test_created_article_can_be_read_back(article):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == article
+
+
+def test_new_article_gets_the_next_integer_id(article):
+    response = client.post(
+        "/articles", json={"title": "Next", "description": "Saved in the database"}
+    )
+    client.delete(f"/articles/{response.json()['id']}")
+
+    assert isinstance(article["id"], int)
+    assert response.json()["id"] > article["id"]
+
+
+def test_edited_article_keeps_its_place_in_the_list(article):
+    other = client.post(
+        "/articles", json={"title": "Other", "description": "Saved in the database"}
+    ).json()
+    client.patch(
+        f"/articles/{article['id']}", json={"title": "Edited", "description": "Edited"}
+    )
+
+    ids = [item["id"] for item in client.get("/articles").json()]
+    client.delete(f"/articles/{other['id']}")
+
+    assert ids == sorted(ids)
 
 
 def test_created_article_appears_in_list(article):
@@ -70,7 +96,7 @@ def test_delete_removes_article(article):
 
 
 def test_deleting_missing_article_returns_404():
-    response = client.delete(f"/articles/{uuid4()}")
+    response = client.delete(f"/articles/{MISSING_ID}")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -81,7 +107,7 @@ def unique_email():
 
 def stored_password_hash(user_id):
     with SessionLocal() as db:
-        return db.query(UserRow).filter_by(id=UUID(user_id)).one().hashed_password
+        return db.query(UserRow).filter_by(id=user_id).one().hashed_password
 
 
 @pytest.fixture
@@ -102,6 +128,13 @@ def test_created_user_can_be_read_back(user):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == user
+
+
+@pytest.mark.parametrize("path", ["/articles/not-a-number", "/users/not-a-number"])
+def test_non_integer_id_is_rejected(path):
+    response = client.get(path)
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_created_user_appears_in_list(user):
@@ -174,6 +207,6 @@ def test_delete_removes_user(user):
     [("get", None), ("patch", {"name": "Grace"}), ("delete", None)],
 )
 def test_missing_user_returns_404(method, body):
-    response = client.request(method, f"/users/{uuid4()}", json=body)
+    response = client.request(method, f"/users/{MISSING_ID}", json=body)
 
     assert response.status_code == status.HTTP_404_NOT_FOUND

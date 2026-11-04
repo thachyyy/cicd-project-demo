@@ -1,6 +1,5 @@
 import os
 from unittest.mock import patch
-from uuid import uuid4
 
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -15,7 +14,7 @@ from utils.article_crud import ARTICLE_REMOVED
 
 client = TestClient(app)
 
-ARTICLE_ID = uuid4()
+ARTICLE_ID = 1
 SAMPLE_TITLE = "Release notes"
 SAMPLE_DESCRIPTION = "What shipped this week"
 EDITED_DESCRIPTION = "What shipped this month"
@@ -67,7 +66,7 @@ def test_read_article():
         response = client.get(f"/articles/{ARTICLE_ID}")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["id"] == str(ARTICLE_ID)
+    assert response.json()["id"] == ARTICLE_ID
     assert response.json()["title"] == SAMPLE_TITLE
 
 

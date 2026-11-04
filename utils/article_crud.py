@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
 
@@ -19,14 +17,14 @@ def create_article(db: Session, article: Article):
 
 
 def list_articles(db: Session):
-    return db.query(ArticleRow).all()
+    return db.query(ArticleRow).order_by(ArticleRow.id).all()
 
 
-def get_article(db: Session, article_id: UUID):
+def get_article(db: Session, article_id: int):
     return db.query(ArticleRow).filter_by(id=article_id).one()
 
 
-def update_article(db: Session, article_id: UUID, changes: ArticleUpdate):
+def update_article(db: Session, article_id: int, changes: ArticleUpdate):
     db.execute(
         update(ArticleRow)
         .where(ArticleRow.id == article_id)
@@ -36,7 +34,7 @@ def update_article(db: Session, article_id: UUID, changes: ArticleUpdate):
     return get_article(db=db, article_id=article_id)
 
 
-def delete_article(db: Session, article_id: UUID):
+def delete_article(db: Session, article_id: int):
     if not db.query(ArticleRow).filter_by(id=article_id).first():
         return ArticleDeleted(detail=ARTICLE_MISSING)
     db.execute(delete(ArticleRow).where(ArticleRow.id == article_id))

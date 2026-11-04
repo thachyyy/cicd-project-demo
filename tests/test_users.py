@@ -1,6 +1,5 @@
 import os
 from unittest.mock import patch
-from uuid import uuid4
 
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -16,7 +15,7 @@ from utils.user_crud import EmailTaken
 
 client = TestClient(app)
 
-USER_ID = uuid4()
+USER_ID = 1
 SAMPLE_EMAIL = "ada@example.com"
 SAMPLE_NAME = "Ada"
 SAMPLE_PASSWORD = "correct horse battery"
@@ -43,7 +42,7 @@ def test_create_user():
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == {
-        "id": str(USER_ID),
+        "id": USER_ID,
         "email": SAMPLE_EMAIL,
         "name": SAMPLE_NAME,
     }
@@ -79,7 +78,7 @@ def test_read_user():
         response = client.get(f"/users/{USER_ID}")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["id"] == str(USER_ID)
+    assert response.json()["id"] == USER_ID
 
 
 def test_read_missing_user_returns_404():

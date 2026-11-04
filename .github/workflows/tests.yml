@@ -21,7 +21,7 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: ci_demo_user
+          POSTGRES_USER: admin
           # Trust mode needs no password, so no credential is stored here.
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: ci_demo
@@ -30,7 +30,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://ci_demo_user@localhost:5432/ci_demo
+      DATABASE_URL: postgresql://admin@localhost:5432/ci_demo
 
     steps:
       - uses: actions/checkout@v4
