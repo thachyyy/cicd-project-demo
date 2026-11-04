@@ -2,11 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.articles import router as articles_router
+from routes.users import router as users_router
 from schemas.models import HealthStatus
 
 app = FastAPI(
     title="CI Demo API",
-    description="A small CRUD service for managing articles.",
+    description="A small CRUD service for managing articles and user accounts.",
     version="1.0.0",
 )
 
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(articles_router, prefix="/articles")
+app.include_router(users_router, prefix="/users")
 
 
 @app.get("/", response_model=HealthStatus)

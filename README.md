@@ -1,6 +1,6 @@
 # CI Demo API
 
-A small REST service for managing articles, built with FastAPI, SQLAlchemy and PostgreSQL.
+A small REST service for managing articles and user accounts, built with FastAPI, SQLAlchemy and PostgreSQL.
 
 Based on [fastapi-sqlalchemy-postgres-template](https://github.com/mdhishaamakhtar/fastapi-sqlalchemy-postgres-template) by mdhishaamakhtar, and modified from the original. Licensed under GPLv3; see [LICENSE](LICENSE).
 
@@ -14,6 +14,13 @@ Based on [fastapi-sqlalchemy-postgres-template](https://github.com/mdhishaamakht
 | GET | `/articles/{article_id}` | Read one article |
 | PATCH | `/articles/{article_id}` | Edit an article |
 | DELETE | `/articles/{article_id}` | Delete an article |
+| POST | `/users` | Create a user account |
+| GET | `/users` | List all users |
+| GET | `/users/{user_id}` | Read one user |
+| PATCH | `/users/{user_id}` | Edit a user (send only the fields to change) |
+| DELETE | `/users/{user_id}` | Delete a user |
+
+Passwords are stored as salted scrypt hashes and are never returned. The API has no login yet, so these endpoints are open to anyone who can reach it.
 
 Interactive docs are at `/docs` and `/redoc` while the server is running.
 
@@ -55,7 +62,7 @@ You need Python 3.10+ and a running PostgreSQL server.
 3. Create `.env` from `.env.example` and set `DATABASE_URL` to your own database:
 
    ```env
-   DATABASE_URL=postgresql://ci_demo_user:<password>@localhost:5432/ci_demo
+   DATABASE_URL=postgresql://admin:<password>@localhost:5432/demo_db
    ```
 
 4. Start the server:
@@ -77,7 +84,7 @@ GitHub Actions runs these workflows from `.github/workflows/`:
 
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
-| `tests.yml` | Pull requests | Checks formatting, then runs unit and integration tests against PostgreSQL |
+| `tests.yml` | Pull requests and pushes to other branches | Checks formatting, then runs unit and integration tests against PostgreSQL |
 | `docker.yml` | Pushes to `main` or `master` | Runs `tests.yml`, then publishes a Docker image to `ghcr.io` if the tests pass |
 | `linter.yml` | Pushes and pull requests on `master` | Runs Super-Linter |
 | `commit.yml` | Pushes and pull requests on `master` | Checks commit message format |
